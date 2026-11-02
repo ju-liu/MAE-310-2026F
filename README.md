@@ -19,6 +19,7 @@ Calculus and Linear algebra.
 ### Assignments
 - [Assignment 1](hw/Homework-1.pdf)   Due: 2026/10/15
 - [Assignment 2](hw/Homework-2.pdf)   Due: 2026/11/02
+- [Assignment 3](hw/Homework-3.pdf)   Due: 2026/11/23
 - [Final project](Final-Project-2025.pdf) Due: TBA
 
 ### References
