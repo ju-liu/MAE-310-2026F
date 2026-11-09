@@ -1,16 +1,16 @@
 clear all; clc; % clean the memory and the screen
 
 % define the exact solution for verification purposes
-exact = @(x) sin(x);
-exact_x = @(x) cos(x);
+exact = @(x) x.^3;
+exact_x = @(x) 3*x.^2;
 
 % define the loading and boundary info
-f = @(x) sin(x);        % u,xx + f = 0
+f = @(x) -6*x;        % u,xx + f = 0
 g = exact(1);           %     u(1) = g
 h = -exact_x(0);        %  -u,x(0) = h
 
 % quadrature rule
-n_int = 30;
+n_int = 3;
 [xi, weight] = Gauss(n_int, -1, 1);
 
 % interpolation degree
@@ -85,4 +85,32 @@ uh_temp = K \ F; % solve K uh = F linear system
 
 uh = [uh_temp; g];
 
+% calculate the L2 and H1 errors
+n_int = 6;
+[xi, weight] = Gauss(n_int, -1, 1);
 
+top = 0.0; bot = 0.0;
+for ee = 1 : n_el
+    x_ele(:) = x_coor(IEN(:,ee));
+    u_ele(:) = uh(IEN(:,ee));
+
+    for ll = 1 : n_int
+        x = 0.0; dx_dxi = 0.0; uh = 0.0;
+        for aa = 1 : n_en
+            x      = x      + x_ele(aa) * PolyShape(pp, aa, xi(ll), 0);
+            dx_dxi = dx_dxi + x_ele(aa) * PolyShape(pp, aa, xi(ll), 1);
+            uh     = uh     + u_ele(aa) * PolyShape(pp, aa, xi(ll), 0);
+        end
+        dxi_dx = 1.0 / dx_dxi;
+
+        top = top + weight(ll) * (uh - exact(x))^2 * dx_dxi;
+        bot = bot + weight(ll) * (exact_x(x))^2 * dx_dxi;
+    end
+end
+
+top = sqrt(top);
+bot = sqrt(bot);
+
+eL2 = top / bot;
+
+% EOF
