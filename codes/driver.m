@@ -9,13 +9,12 @@ f = @(x) sin(x);        % u,xx + f = 0
 g = exact(1);           %     u(1) = g
 h = -exact_x(0);        %  -u,x(0) = h
 
-
 % quadrature rule
-n_int = 3;
+n_int = 30;
 [xi, weight] = Gauss(n_int, -1, 1);
 
 % interpolation degree
-pp   = 3;                     % degree of shape function
+pp   = 1;                     % degree of shape function
 n_el = 5;                     % number of elements
 n_np = pp * n_el + 1;         % number of nodal points
 n_en = pp + 1;                % number of element nodes
@@ -40,11 +39,7 @@ F = zeros(n_eq, 1);
 for ee = 1 : n_el
     k_ele = zeros(n_en, n_en);
     f_ele = zeros(n_en, 1);
-    x_ele = zeros(n_en, 1);
-    
-    for aa = 1 : n_en
-        x_ele(aa) = x_coor(IEN(aa,ee));
-    end
+    x_ele(:) = x_coor(IEN(:,ee));
 
     for ll = 1 : n_int
         dx_dxi = 0.0;
@@ -61,12 +56,33 @@ for ee = 1 : n_el
 
             for bb = 1 : n_en
                 k_ele(aa,bb) = k_ele(aa,bb) + weight(ll) * ...
-                    PolyShape(pp, aa, xi(ll),1) * PolyShape(pp,bb,xi(ll),1) * dxi_dx;
+                    PolyShape(pp, aa, xi(ll), 1) * PolyShape(pp, bb, xi(ll), 1) *...
+                    dxi_dx;
+            end
+        end
+    end  % end of quadrature
+
+    for aa = 1 : n_en
+        PP = ID(IEN(aa, ee));
+        if PP > 0
+            F(PP) = F(PP) + f_ele(aa);
+
+            for bb = 1 : n_en
+                QQ = ID(IEN(bb, ee));
+                if QQ > 0
+                    K(PP,QQ) = K(PP,QQ) + k_ele(aa,bb);
+                else
+                    F(PP) = F(PP) - k_ele(aa,bb)*g;
+                end
             end
         end
     end
+end 
 
-end
+F(1) = F(1) + h;
 
+uh_temp = K \ F; % solve K uh = F linear system
+
+uh = [uh_temp; g];
 
 
