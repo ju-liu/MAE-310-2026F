@@ -9,6 +9,7 @@ f = @(x) sin(x);        % u,xx + f = 0
 g = exact(1);           %     u(1) = g
 h = -exact_x(0);        %  -u,x(0) = h
 
+
 % quadrature rule
 n_int = 3;
 [xi, weight] = Gauss(n_int, -1, 1);
