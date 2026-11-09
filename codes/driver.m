@@ -1,25 +1,25 @@
-% clean the memory and screen
-clear all; clc;
+clear all; clc; % clean the memory and the screen
 
 % define the exact solution for verification purposes
 exact = @(x) sin(x);
 exact_x = @(x) cos(x);
 
 % define the loading and boundary info
-f = @(x) sin(x);
-g = sin(1);
-h = -exact_x(0);
+f = @(x) sin(x);        % u,xx + f = 0
+g = exact(1);           %     u(1) = g
+h = -exact_x(0);        %  -u,x(0) = h
 
 % quadrature rule
 n_int = 3;
 [xi, weight] = Gauss(n_int, -1, 1);
 
 % interpolation degree
-pp = 3;
-
-n_el = 5;
-n_np = pp * n_el + 1;
-n_en = pp + 1;
+pp   = 3;                     % degree of shape function
+n_el = 5;                     % number of elements
+n_np = pp * n_el + 1;         % number of nodal points
+n_en = pp + 1;                % number of element nodes
+n_eq = n_np - 1;              % number of equations
+x_coor = 0 : 1/(n_el*pp) : 1; % nodal coordinates
 
 IEN = zeros(n_en, n_el);
 
@@ -29,12 +29,8 @@ for aa = 1 : n_en
     end
 end
 
-x_coor = 0 : 1/(n_el*pp) : 1;
-
 ID = 1 : n_np;
 ID(end) = 0;
-
-n_eq = n_np - 1;
 
 % allocate zero matrix and zero vector
 K = zeros(n_eq, n_eq);
@@ -43,8 +39,8 @@ F = zeros(n_eq, 1);
 for ee = 1 : n_el
     k_ele = zeros(n_en, n_en);
     f_ele = zeros(n_en, 1);
-
     x_ele = zeros(n_en, 1);
+    
     for aa = 1 : n_en
         x_ele(aa) = x_coor(IEN(aa,ee));
     end
